@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E10F489A1BA841D1005C8AB4 /* ARMDZ_InstagramSearchPlugIn.m in Sources */ = {isa = PBXBuildFile; fileRef = E10F48991BA841D1005C8AB4 /* ARMDZ_InstagramSearchPlugIn.m */; };
+		E10F48A11BA844C8005C8AB4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E10F48A01BA844C8005C8AB4 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -15,6 +16,7 @@
 		E10F48971BA841D1005C8AB4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E10F48981BA841D1005C8AB4 /* ARMDZ_InstagramSearchPlugIn.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ARMDZ_InstagramSearchPlugIn.h; sourceTree = "<group>"; };
 		E10F48991BA841D1005C8AB4 /* ARMDZ_InstagramSearchPlugIn.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ARMDZ_InstagramSearchPlugIn.m; sourceTree = "<group>"; };
+		E10F48A01BA844C8005C8AB4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -22,6 +24,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E10F48A11BA844C8005C8AB4 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -31,6 +34,7 @@
 		E10F48891BA841D1005C8AB4 = {
 			isa = PBXGroup;
 			children = (
+				E10F48A01BA844C8005C8AB4 /* Foundation.framework */,
 				E10F48951BA841D1005C8AB4 /* ARMDZ_InstagramSearch */,
 				E10F48941BA841D1005C8AB4 /* Products */,
 			);
