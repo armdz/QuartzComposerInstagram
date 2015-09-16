@@ -20,7 +20,7 @@
 // Here you need to declare the input / output properties as dynamic as Quartz Composer will handle their implementation
 //@dynamic inputFoo, outputBar;
 
-@dynamic input_hash_tag,input_do_search,output_results,input_token;
+@dynamic input_hash_tag,input_do_search,output_results,input_token,output_done;
 
 + (NSDictionary *)attributes
 {
@@ -43,6 +43,8 @@
             @"Search", QCPortAttributeNameKey,nil];
   }else if( [key isEqualToString:@"output_results"]){
     return [NSDictionary dictionaryWithObjectsAndKeys:@"Result",QCPortAttributeNameKey,FALSE,QCPortAttributeDefaultValueKey, nil];
+  }else if( [key isEqualToString:@"output_done"]){
+    return [NSDictionary dictionaryWithObjectsAndKeys:@"Done",QCPortAttributeNameKey,FALSE,QCPortAttributeDefaultValueKey, nil];
   }else{
     return nil;
   }
@@ -67,6 +69,8 @@
 	self = [super init];
 	if (self) {
     internal_do_request = false;
+    wait_response = false;
+
 		// Allocate any permanent resource required by the plug-in.
 	}
 	
@@ -94,54 +98,62 @@
 - (BOOL)execute:(id <QCPlugInContext>)context atTime:(NSTimeInterval)time withArguments:(NSDictionary *)arguments
 {
   
+  
+  
   if(self.input_do_search)
   {
     if(!internal_do_request)
     {
-    
-      /*Host:
-       api.instagram.com
-       X-Target-URI:
-       https://api.instagram.com
-       Connection:
-       Keep-Alive*/
-      
-      NSString  *string_url = [NSString stringWithFormat:@"https://api.instagram.com/v1/tags/%@/media/recent?access_token=%@",self.input_hash_tag,self.input_token];
-      request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:string_url] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
-      request.HTTPMethod = @"GET";
-      
-      [context logMessage:[NSString stringWithFormat:@"do req,%@",string_url]];
-      
-      [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-        if(connectionError != NULL)
-        {
-          NSDictionary *output = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:connectionError.description,@"", nil] forKeys:[NSArray arrayWithObjects:@"error",@"data", nil]];
-          output_data = output;
-          [context logMessage:[NSString stringWithFormat:@"ERROR %@",connectionError.description]];
-        }else{
-          NSDictionary *output_dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:NULL];
-          output_data = output_dict;
-        }
-      }];
-      
-      self.output_results = output_data;
+      if(!wait_response){
+        output_data = [[NSDictionary alloc] init];
+        wait_response = true;
+        internal_done = false;
+        NSString  *string_url = [NSString stringWithFormat:@"https://api.instagram.com/v1/tags/%@/media/recent?access_token=%@",self.input_hash_tag,self.input_token];
+        
+        
+        request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:string_url] cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0];
+        request.HTTPMethod = @"GET";
+        
+        [context logMessage:[NSString stringWithFormat:@"do req,%@",string_url]];
+        
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+          if(connectionError != NULL)
+          {
+            /*
+            NSDictionary *output = [NSDictionary dictionaryWithObjects:[NSArray arrayWithObjects:connectionError.description,@"", nil] forKeys:[NSArray arrayWithObjects:@"error",@"data", nil]];
+            output_data = output;
+            [context logMessage:[NSString stringWithFormat:@"ERROR %@",connectionError.description]];
+            wait_response = false;
+            internal_do_request = false;*/
+            internal_done  = true;
+          }else{
+            NSDictionary *output_dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:NULL];
+            output_data = output_dict;
+          
+            [context logMessage:[NSString stringWithFormat:@"OK %d",(int)[[output_data objectForKey:@"data"] count]]];
+            
+            internal_done = true;
+          }
+        }];
 
+
+      }
     }
-    internal_do_request = true;
   }else{
+    wait_response = false;
     internal_do_request = false;
+
+  }
+
+  self.output_results = output_data;
+  self.output_done = internal_done;
+  
+  if(internal_done)
+  {
+    internal_done = false;
   }
   
-	/*
-	Called by Quartz Composer whenever the plug-in instance needs to execute.
-	Only read from the plug-in inputs and produce a result (by writing to the plug-in outputs or rendering to the destination OpenGL context) within that method and nowhere else.
-	Return NO in case of failure during the execution (this will prevent rendering of the current frame to complete).
-	
-	The OpenGL context for rendering can be accessed and defined for CGL macros using:
-	CGLContextObj cgl_ctx = [context CGLContextObj];
-	*/
-	
-	return YES;
+  return YES;
 }
 
 - (void)disableExecution:(id <QCPlugInContext>)context
