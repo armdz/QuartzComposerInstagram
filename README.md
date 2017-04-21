@@ -1,3 +1,5 @@
+# DEPRECATED due a changes of policy in instagram api. 
+
 # Quartz Composer Instagram Search
 
 Little implementation of Instagram (oAuth) hash tag search for Quartz Composer
